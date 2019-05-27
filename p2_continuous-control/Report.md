@@ -1,43 +1,32 @@
 ## 1. Description of the implementation
-The solution is based on the Deep Q-Learning algorithm provided in the course.
-The main difference is on the Q Network, that was modified with some dropout layers.
+The solution is based on the ddpg-bipedal code provided in the [github repository](https://github.com/udacity/deep-reinforcement-learning/tree/master/ddpg-bipedal). The main difference is that, instead of using the OUNoise class, I have added some dropout layers to the actor and critic networks. I did not have time to compare each other, but it seems to work in a similar way.
 
-These layers usually work very well with Deep Learning Networks. They remove information
-and makes the network more robust.
+These layers usually work very well with Deep Learning Networks. They remove information and makes the network more robust.
 
- In this case, it improved the number of episodes needed for training, but I think
- the final network has very broad results. The average score is 13, but there are
- apisodes with score 25 and score 0.
-
- With the provided network, the training usually requires longer (more episodes), but the resulting agent seems to be more stable.
+ In this case, I could not get the network to converge using the OUNoise generator, but adding the dropout layers, the network converged faster than just the network without them.
 
  ## 2. Learning algorithm
-There are no differences with the basic Q-Learning algorith. The only modification
-are the Dropout layers.
+There are no differences with the basic DDPG algorith. The only modification are the Dropout layers.
 
- My guess was that the information received by the agent is very visual. Although It was not bitmap data, My guess was that the Dropout layer would help.
+ The initial idea was testing a basic DDPG algorithm as provided and see how it was going.
 
- The idea was also to reuse this network in the Pixels scenario, but I did not tested
- it in this scenario.
+After playing with the number of layers and number of units on each layer, I could not make the nework to converge to a solution.
 
- The initial idea was testing a basic Q-learning algorithm as provided and see how it
- was going.
+The problem was that I was reusing the max_t parameter that limits the number of steps spent on each episode, to avoid an infinite loop.
 
-After playing with the number of layers and number of units on each layer, I could
-not improve the learning rate.
+The limit was set to a lower value, specific for the bipedal scenario, but was limiting the maximum score that could be obtained in this one.
 
-I was playing with large value of epsilon decay (0.995-0.9995). Then I noticed that
-this was a limiting number for the model, It was taking too many random decisions at some point. This is good for some scenarios, but in this case seemed that it was playing too much. So I decided the use a lower epsilon decay and after some tuning I got a number (0.975) that required few cycles of training and actually learned.
+After changing the parameter to a larger value, it took longer to train, but with higher scores, because in this scenario the score depends on the time that the network can follow the target goal.
+
 
  ## 3. Plot of rewards
-The average score plot, reveals that the agent has a good learning rate, and reaches the 13 average score quite fast:
+The average score plot, reveals that the agent has a good learning rate, and reaches the 30 average score quite fast:
 
 ![](plot.png)
 
-In this case it achieved the 13 average score in 183 episodes.
+In this case it achieved the 13 average score in 344 episodes.
 
 ## 4.Ideas for Future Work
-At least the recommended alternative algorithms (Double DQN, Dueling DQN and Rainbow DQN).
-In the case of this implementation, I has a lot variance in the results. Using a slower learning rate  got an algorithm that had less variance (there was not much difference among max and minimum episode scores).
-Watching the agent, I could notice that it sometimes gets stuck, and that in that episode it gets few points.
-Maybe adding a larger first layer (to acomodate for the fact that the provided status space has very different data) or reduce the dropout rate or just increase epsilon to allow a more stable learn.
+At least the recommended alternative algorithms (A3C and GAE).
+In the case of this implementation, I would explore the OUNoise module, that could not get working. Also, the limit on max_t may be relaxed and see how could work.
+There is another issue that I could not solve. This problem takes a lot to train and converge. Even when testing on the Udacity workspace that uses a GPU or in my local computer that does not use a GPU, the train time is similar. I am not sure where the problem is, but definitely seems a good point to improve. 
